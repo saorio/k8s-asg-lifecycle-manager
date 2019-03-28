@@ -1,51 +1,29 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: {{ .Values.service.name }}
+  name: asg-lifecycle-manager
   labels:
-    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    chart: "asg-lifecycle-manager-0.1.0"
 spec:
-  replicas: {{ .Values.replicaCount }}
+  replicas: 1
   template:
     metadata:
       labels:
-        app: {{ .Values.service.name }}
+        app: asg-lifecycle-manager
     spec:
       imagePullSecrets:
       - name: docker-registry-logicmonitor-net
-      serviceAccountName: {{ .Values.service.name }}
-      nodeSelector:
-        node-role.kubernetes.io/master: ""
-      tolerations:
-      - key: node-role.kubernetes.io/master
-        effect: NoSchedule
+      serviceAccountName: asg-lifecycle-manager
       containers:
-      - name: {{ .Chart.Name }}
-        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-        imagePullPolicy: {{ .Values.image.pullPolicy }}
+      - name: asg-lifecycle-manager
+        image: "logicmonitor/k8s-asg-lifecycle-manager:latest"
+        imagePullPolicy: Always
         env:
         - name: NODEMAN_AWS_REGION
-          value: "{{ .Values.service.awsRegion }}"
+          value: "ap-northeast-1"
         - name: NODEMAN_AWS_SQS_QUEUE_URL
-          value: "{{ .Values.service.awsSqsQueueURL }}"
+          value: "https://sqs.ap-northeast-1.amazonaws.com/393024300663/k8s-asg-lifecycle-manager-feed"
         - name: NODEMAN_DEBUG
-          value: "{{ .Values.service.debug }}"
+          value: "true"
         ports:
-        - containerPort: {{ .Values.service.port }}
-        readinessProbe:
-          httpGet:
-            path: /
-            port: {{ .Values.service.port }}
-          initialDelaySeconds: 15
-          periodSeconds: 5
-        livenessProbe:
-          httpGet:
-            path: /
-            port: {{ .Values.service.port }}
-          initialDelaySeconds: 15
-          periodSeconds: 5
-        resources:
-          requests:
-            memory: "250Mi"
-          limits:
-            memory: "250Mi"
+        - containerPort: 8080

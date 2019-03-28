@@ -1,16 +1,16 @@
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: {{.Values.service.name}}
+  name: asg-lifecycle-manager
 spec:
   tls:
   - hosts:
-    - {{.Values.service.name}}-{{ required "A valid .Values.service.ingressSuffix entry required!" .Values.service.ingressSuffix }}
+    - asg-lifecycle-manager-prd
   rules:
-  - host: {{.Values.service.name}}-{{ required "A valid .Values.service.ingressSuffix entry required!" .Values.service.ingressSuffix }}
+  - host: asg-lifecycle-manager-prd
     http:
       paths:
         - backend:
-            serviceName: {{.Values.service.name}}
-            servicePort: {{.Values.service.port}}
+            serviceName: asg-lifecycle-manager
+            servicePort: 8080
           path: /
